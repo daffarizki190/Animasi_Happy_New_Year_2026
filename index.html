@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harapan Keluarga 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="menu-container">
+        <h2 class="menu-title">Pilih Penerima Pesan:</h2>
+        <div class="button-grid">
+            <button class="menu-btn" onclick="startShow('bapak')">👨🏻 Bapak</button>
+            <button class="menu-btn" onclick="startShow('mamah')">👩🏻 Mamah</button>
+            <button class="menu-btn" onclick="startShow('diva')">👧🏻 Diva</button>
+            <button class="menu-btn" onclick="startShow('faris')">👦🏻 Faris</button>
+        </div>
+        <p class="instruction">Klik salah satu nama untuk membuka kartu ucapan</p>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="Ruang Baru - Barsena Bestandhi KARAOKE PIANO - MALE KEY.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="canvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
