@@ -7,7 +7,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 // ===================================================
-// DATABASE PESAN (Personalized)
+// DATABASE PESAN
 // ===================================================
 const allMessages = {
     'bapak': [
@@ -116,7 +116,34 @@ class Particle {
     }
 }
 
-// --- FUNGSI GAMBAR TEKS (UPDATE: ETHEREAL MOONLIGHT EFFECT) ---
+// --- FUNGSI PENGHITUNG UKURAN FONT (ANTI POTONG) ---
+function getResponsiveFontSize(text, isSpecial) {
+    // 1. Tentukan ukuran dasar (HP: lebih kecil, Laptop: lebih besar)
+    let baseSize = Math.min(canvas.width / 15, 40); 
+    
+    // 2. Set font sementara untuk pengukuran
+    ctx.font = `bold ${baseSize}px "Segoe UI", sans-serif`;
+    
+    // 3. Ukur lebar teks
+    let textWidth = ctx.measureText(text).width;
+    let maxWidth = canvas.width * 0.90; // Maksimal 90% lebar layar (biar ada sisa pinggir)
+
+    // 4. Jika teks kepanjangan, kecilkan ukurannya secara matematika
+    if (textWidth > maxWidth) {
+        baseSize = baseSize * (maxWidth / textWidth);
+    }
+
+    // 5. Jika itu teks spesial (2026), boleh dibesarkan sedikit, tapi tetap dicek
+    if (isSpecial) {
+        // Efek denyut (pulse) dikurangi agar tidak meledak keluar layar
+        let pulse = 1 + Math.sin(Date.now() * 0.002) * 0.05; 
+        return baseSize * 1.2 * pulse;
+    }
+
+    return baseSize;
+}
+
+// --- FUNGSI GAMBAR TEKS ---
 function drawText() {
     if (msgIndex >= messages.length) msgIndex = messages.length - 1;
     let currentText = messages[msgIndex];
@@ -126,34 +153,26 @@ function drawText() {
     ctx.globalAlpha = msgOpacity;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    let baseFontSize = Math.min(canvas.width / 18, 50);
+    
+    // PANGGIL FUNGSI ANTI-POTONG DI SINI
+    let fontSize = getResponsiveFontSize(currentText, isSpecial);
+    ctx.font = `bold ${fontSize}px "Segoe UI", sans-serif`;
 
     if (isSpecial) {
-        // --- EFEK CAHAYA BULAN (ETHEREAL) ---
-        // Sangat cocok untuk lagu Banda Neira
-        
-        // 1. Animasi Bernapas (Breathing) yang Sangat Lambat & Lembut
-        // Angka 0.0015 membuat denyutannya pelan sekali, menenangkan
-        let pulse = 1 + Math.sin(Date.now() * 0.0015) * 0.08; 
-        ctx.font = `bold ${baseFontSize * 1.5 * pulse}px "Segoe UI", sans-serif`; 
-
-        // 2. Warna Putih Bersih dengan Pendaran Biru Es (Ice Blue)
+        // Efek Ethereal Moonlight
         ctx.fillStyle = "#ffffff"; 
-
-        // 3. Glow yang Luas tapi Lembut
-        // Shadow berubah perlahan antara Cyan dan Putih
-        let glowIntensity = 20 + Math.sin(Date.now() * 0.003) * 10;
-        ctx.shadowColor = "rgba(135, 206, 250, 0.8)"; // Light Sky Blue
+        
+        // Glow
+        let glowIntensity = 15 + Math.sin(Date.now() * 0.003) * 5;
+        ctx.shadowColor = "rgba(135, 206, 250, 0.8)";
         ctx.shadowBlur = glowIntensity; 
         
-        // Garis tepi tipis agar tulisan tetap terbaca jelas di tengah cahaya
         ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 0.5; // Garis tipis aja di HP
         ctx.strokeText(currentText, canvas.width / 2, canvas.height / 2);
 
     } else {
-        // Teks Biasa (Putih Simple)
-        ctx.font = `bold ${baseFontSize}px "Segoe UI", sans-serif`;
+        // Teks Biasa
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 198, 255, 0.3)";
         ctx.shadowBlur = 10;
@@ -202,6 +221,7 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+// UPDATE: Resize handler yang lebih kuat untuk HP
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
