@@ -2,13 +2,12 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const menu = document.getElementById('menu-container');
 const music = document.getElementById('bg-music');
+const backBtn = document.getElementById('back-btn');
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// ===================================================
 // DATABASE PESAN
-// ===================================================
 const allMessages = {
     'bapak': [
         "Assalamualaikum Bapak...",
@@ -64,14 +63,35 @@ let msgIndex = 0;
 let msgOpacity = 0;
 let msgState = "in"; 
 let timer = 0;
+let animationId; // Untuk menyimpan ID animasi agar bisa distop
 
 // --- FUNGSI START ---
 function startShow(name) {
     messages = allMessages[name];
+    msgIndex = 0; // Reset index pesan
+    msgState = "in"; // Reset state
+    msgOpacity = 0;
+    
     menu.style.display = 'none';
+    backBtn.style.display = 'block'; // Tampilkan tombol kembali
     canvas.style.display = 'block';
+    
     music.play().catch(e => console.log("Gagal putar lagu:", e));
     animate();
+}
+
+// --- FUNGSI KEMBALI KE MENU ---
+function goBack() {
+    cancelAnimationFrame(animationId); // Stop animasi biar ga berat
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan layar
+    
+    canvas.style.display = 'none';
+    backBtn.style.display = 'none';
+    menu.style.display = 'block'; // Munculkan menu lagi
+    
+    // Reset partikel biar pas mulai lagi bersih
+    fireworks = [];
+    particles = [];
 }
 
 // --- KELAS KEMBANG API ---
@@ -116,34 +136,23 @@ class Particle {
     }
 }
 
-// --- FUNGSI PENGHITUNG UKURAN FONT (ANTI POTONG) ---
+// --- FUNGSI UKURAN FONT RESPONSIF ---
 function getResponsiveFontSize(text, isSpecial) {
-    // 1. Tentukan ukuran dasar (HP: lebih kecil, Laptop: lebih besar)
     let baseSize = Math.min(canvas.width / 15, 40); 
-    
-    // 2. Set font sementara untuk pengukuran
     ctx.font = `bold ${baseSize}px "Segoe UI", sans-serif`;
-    
-    // 3. Ukur lebar teks
     let textWidth = ctx.measureText(text).width;
-    let maxWidth = canvas.width * 0.90; // Maksimal 90% lebar layar (biar ada sisa pinggir)
+    let maxWidth = canvas.width * 0.90; 
 
-    // 4. Jika teks kepanjangan, kecilkan ukurannya secara matematika
     if (textWidth > maxWidth) {
         baseSize = baseSize * (maxWidth / textWidth);
     }
-
-    // 5. Jika itu teks spesial (2026), boleh dibesarkan sedikit, tapi tetap dicek
-    if (isSpecial) {
-        // Efek denyut (pulse) dikurangi agar tidak meledak keluar layar
-        let pulse = 1 + Math.sin(Date.now() * 0.002) * 0.05; 
-        return baseSize * 1.2 * pulse;
-    }
-
+    
+    // Kalau teks petasan, buat sedikit lebih besar
+    if (isSpecial) return baseSize * 1.3;
     return baseSize;
 }
 
-// --- FUNGSI GAMBAR TEKS ---
+// --- FUNGSI GAMBAR TEKS (EFEK PETASAN) ---
 function drawText() {
     if (msgIndex >= messages.length) msgIndex = messages.length - 1;
     let currentText = messages[msgIndex];
@@ -154,31 +163,44 @@ function drawText() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
-    // PANGGIL FUNGSI ANTI-POTONG DI SINI
     let fontSize = getResponsiveFontSize(currentText, isSpecial);
     ctx.font = `bold ${fontSize}px "Segoe UI", sans-serif`;
 
     if (isSpecial) {
-        // Efek Ethereal Moonlight
-        ctx.fillStyle = "#ffffff"; 
+        // --- EFEK PETASAN (EXPLOSIVE TEXT) ---
         
-        // Glow
-        let glowIntensity = 15 + Math.sin(Date.now() * 0.003) * 5;
-        ctx.shadowColor = "rgba(135, 206, 250, 0.8)";
-        ctx.shadowBlur = glowIntensity; 
+        // 1. Warna Kelap-kelip Acak (Seperti percikan api)
+        // Menggunakan Math.random() agar warnanya berubah setiap frame (kedap-kedip cepat)
+        let hue = Math.random() * 360; 
+        ctx.fillStyle = `hsl(${hue}, 100%, 70%)`;
         
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.lineWidth = 0.5; // Garis tipis aja di HP
-        ctx.strokeText(currentText, canvas.width / 2, canvas.height / 2);
+        // 2. Efek Getar (Shake)
+        // Menggeser posisi teks sedikit secara acak (kiri-kanan-atas-bawah)
+        let shakeX = (Math.random() - 0.5) * 5; // Getar horizontal
+        let shakeY = (Math.random() - 0.5) * 5; // Getar vertikal
+        
+        // 3. Glow yang "Meledak"
+        // Shadow blur berubah-ubah drastis
+        let explosionGlow = 20 + Math.random() * 30; 
+        ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+        ctx.shadowBlur = explosionGlow;
+        
+        // Gambar teks dengan posisi bergetar
+        ctx.fillText(currentText, (canvas.width / 2) + shakeX, (canvas.height / 2) + shakeY);
+        
+        // Tambahan: Garis luar putih biar tetap terbaca saat kelap-kelip
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 1;
+        ctx.strokeText(currentText, (canvas.width / 2) + shakeX, (canvas.height / 2) + shakeY);
 
     } else {
-        // Teks Biasa
+        // Teks Biasa (Tenang)
         ctx.fillStyle = "#ffffff";
-        ctx.shadowColor = "rgba(0, 198, 255, 0.3)";
+        ctx.shadowColor = "rgba(0, 198, 255, 0.5)";
         ctx.shadowBlur = 10;
+        ctx.fillText(currentText, canvas.width / 2, canvas.height / 2);
     }
     
-    ctx.fillText(currentText, canvas.width / 2, canvas.height / 2);
     ctx.restore();
 
     // Logika Transisi
@@ -187,7 +209,7 @@ function drawText() {
         if (msgOpacity >= 1) { msgOpacity = 1; msgState = "wait"; timer = 0; }
     } else if (msgState === "wait") {
         timer++;
-        let waitTime = isSpecial ? 800 : 180; 
+        let waitTime = isSpecial ? 500 : 180; 
         if (timer > waitTime) { 
              if (!isSpecial) msgState = "out"; 
         }
@@ -204,7 +226,7 @@ function animate() {
     ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    if (Math.random() < 0.03) fireworks.push(new Firework());
+    if (Math.random() < 0.05) fireworks.push(new Firework()); // Frekuensi petasan background sedikit ditambah
     
     for (let i = fireworks.length - 1; i >= 0; i--) {
         fireworks[i].update(); fireworks[i].draw();
@@ -218,10 +240,9 @@ function animate() {
         if (particles[i].alpha <= 0) particles.splice(i, 1);
     }
     drawText();
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate); // Simpan ID animasi
 }
 
-// UPDATE: Resize handler yang lebih kuat untuk HP
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
