@@ -32,11 +32,11 @@ const allMessages = {
         "✨ SELAMAT TAHUN BARU 2026 ✨"
     ],
     'diva': [
-        "Halo Diva, Wanita Karir Kebanggaan...",
+        "Halo Diva, Wanita Cantik Kebanggaan...",
         "Tahun Ini Pasti Berat Ya? Tapi Kamu Hebat",
         "Terima Kasih Sudah Berjuang Sejauh Ini",
         "Kerja Keras Boleh, Tapi Jangan Lupa Istirahat",
-        "Bahagiakan Dirimu Sendiri Juga Ya Dek",
+        "Bahagiakan Dirimu Sendiri Juga Ya Div",
         "Semoga Tahun Depan Gaji & Karir Makin Naik",
         "Tetap Rendah Hati & Sayang Keluarga",
         "❤️ Semangat Terus Diva ❤️",
@@ -44,7 +44,7 @@ const allMessages = {
     ],
     'faris': [
         "Hei Faris, Jagoan Keluarga...",
-        "Perjalananmu Masih Panjang Dek",
+        "Perjalananmu Masih Panjang Ris",
         "Dunia Gak Cuma Sebatas Layar HP",
         "Ayo Buktikan Kalau Kamu Bisa Berprestasi",
         "Jadilah Laki-laki yang Bisa Diandalkan",
