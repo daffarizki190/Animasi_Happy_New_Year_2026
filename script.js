@@ -32,7 +32,7 @@ const allMessages = {
         "✨ SELAMAT TAHUN BARU 2026 ✨"
     ],
     'diva': [
-        "Halo Diva, Wanita Cantik Kebanggaan...",
+        "Halo Diva, Wanita Cantik Kebanggaan Gw...",
         "Tahun Ini Pasti Berat Ya? Tapi Kamu Hebat",
         "Terima Kasih Sudah Berjuang Sejauh Ini",
         "Kerja Keras Boleh, Tapi Jangan Lupa Istirahat",
@@ -55,7 +55,6 @@ const allMessages = {
     ]
 };
 
-// Variabel Global
 let messages = []; 
 let fireworks = [];
 let particles = [];
@@ -65,7 +64,6 @@ let msgState = "in";
 let timer = 0;
 let animationId;
 
-// --- FUNGSI START ---
 function startShow(name) {
     messages = allMessages[name];
     msgIndex = 0;
@@ -78,7 +76,6 @@ function startShow(name) {
     animate();
 }
 
-// --- FUNGSI KEMBALI ---
 function goBack() {
     cancelAnimationFrame(animationId);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -89,7 +86,6 @@ function goBack() {
     particles = [];
 }
 
-// --- KELAS KEMBANG API ---
 class Firework {
     constructor() {
         this.x = Math.random() * canvas.width;
@@ -131,24 +127,32 @@ class Particle {
     }
 }
 
-// --- FUNGSI UKURAN FONT ---
+// --- PERBAIKAN LOGIKA FONT ANTI TERPOTONG ---
 function getResponsiveFontSize(text, isSpecial) {
-    let baseSize = Math.min(canvas.width / 15, 40); 
-    // Font khusus neon: Monoton atau cursive
+    // 1. Tentukan ukuran dasar awal
+    let baseSize = isSpecial ? Math.min(canvas.width / 8, 60) : Math.min(canvas.width / 12, 40);
+    
+    // 2. Terapkan Font untuk pengukuran
     ctx.font = isSpecial ? `500 ${baseSize}px "Monoton", cursive` : `bold ${baseSize}px "Segoe UI", sans-serif`;
     
+    // 3. Ukur lebar teks asli
     let textWidth = ctx.measureText(text).width;
-    let maxWidth = canvas.width * 0.90; 
+    let maxWidth = canvas.width * 0.85; // Batasi maksimal 85% lebar layar ponsel
 
+    // 4. Jika teks lebih lebar dari layar, kecilkan baseSize secara proporsional
     if (textWidth > maxWidth) {
         baseSize = baseSize * (maxWidth / textWidth);
     }
-    
-    if (isSpecial) return baseSize * 1.5; // Neon sedikit lebih besar
+
+    // 5. Khusus teks spesial, tambahkan efek "Bernapas" (Pulse) tapi tetap dalam batas aman
+    if (isSpecial) {
+        let pulse = 1 + Math.sin(Date.now() * 0.002) * 0.05; 
+        return baseSize * pulse;
+    }
+
     return baseSize;
 }
 
-// --- FUNGSI GAMBAR TEKS (EFEK NEON) ---
 function drawText() {
     if (msgIndex >= messages.length) msgIndex = messages.length - 1;
     let currentText = messages[msgIndex];
@@ -162,36 +166,22 @@ function drawText() {
     let fontSize = getResponsiveFontSize(currentText, isSpecial);
 
     if (isSpecial) {
-        // --- EFEK NEON WARNA-WARNI BERKEDIP ---
-        
-        // Gunakan font bergaya neon (pastikan import di HTML nanti)
+        // --- EFEK NEON ---
         ctx.font = `500 ${fontSize}px "Monoton", cursive`;
-
-        // 1. Warna Neon Berubah-ubah
-        // Warna utama berubah seiring waktu (seperti siklus pelangi)
         let hue = (Date.now() / 20) % 360;
-        let neonColor = `hsl(${hue}, 100%, 50%)`;
-        let neonGlowColor = `hsl(${hue}, 100%, 70%)`;
-
-        // 2. Efek Berkedip (Flicker)
-        // Intensitas cahaya berubah acak untuk simulasi lampu neon asli
         let flicker = 0.8 + Math.random() * 0.2; 
 
-        // 3. Gambar Glow (Pendaran Cahaya)
-        ctx.shadowColor = neonGlowColor;
-        ctx.shadowBlur = 30 * flicker; // Blur ikut berkedip
-        ctx.fillStyle = neonColor;
+        ctx.shadowColor = `hsl(${hue}, 100%, 70%)`;
+        ctx.shadowBlur = 30 * flicker;
+        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillText(currentText, canvas.width / 2, canvas.height / 2);
         
-        // 4. Gambar Teks Utama (Tabung Neon)
-        // Lapisan kedua untuk mempertegas bentuk tabung
         ctx.shadowBlur = 10 * flicker;
-        ctx.strokeStyle = "white"; // Bagian tengah tabung neon biasanya putih terang
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = Math.max(1, fontSize / 20);
         ctx.strokeText(currentText, canvas.width / 2, canvas.height / 2);
 
     } else {
-        // Teks Biasa
         ctx.font = `bold ${fontSize}px "Segoe UI", sans-serif`;
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 198, 255, 0.5)";
@@ -201,7 +191,6 @@ function drawText() {
     
     ctx.restore();
 
-    // Logika Transisi
     if (msgState === "in") {
         msgOpacity += 0.01; 
         if (msgOpacity >= 1) { msgOpacity = 1; msgState = "wait"; timer = 0; }
