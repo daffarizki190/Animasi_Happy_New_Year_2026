@@ -13,14 +13,16 @@
         <div class="button-grid">
             <button class="menu-btn" onclick="startShow('bapak')">👨🏻 Bapak</button>
             <button class="menu-btn" onclick="startShow('mamah')">👩🏻 Mamah</button>
-            <button class="menu-btn" onclick="startShow('diva')">👧🏻 Diva</button>
+            <button class="menu-btn" onclick="startShow('diva')">👩🏻‍💼 Diva</button>
             <button class="menu-btn" onclick="startShow('faris')">👦🏻 Faris</button>
         </div>
-        <p class="instruction">Klik salah satu nama untuk membuka kartu ucapan</p>
+        <p class="instruction">Klik nama untuk melihat kartu ucapan</p>
     </div>
 
+    <button id="back-btn" onclick="goBack()">⬅ Kembali ke Menu</button>
+
     <audio id="bg-music" loop>
-        <source src="Ruang Baru - Barsena Bestandhi KARAOKE PIANO - MALE KEY.mp3" type="audio/mpeg">
+        <source src="lagu.mp3" type="audio/mpeg">
     </audio>
 
     <canvas id="canvas"></canvas>

@@ -1,33 +1,56 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #050505; /* Hitam Pekat */
+    background-color: #050505;
     overflow: hidden;
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    display: flex; /* Agar menu rata tengah */
+    display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
 canvas {
-    display: none; /* Sembunyikan canvas di awal */
+    display: none;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
 }
 
-/* Tampilan Menu */
+/* --- TOMBOL KEMBALI --- */
+#back-btn {
+    display: none; /* Sembunyi di awal */
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+#back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* --- MENU --- */
 #menu-container {
     text-align: center;
     z-index: 10;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(20, 20, 30, 0.8);
     padding: 40px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    box-shadow: 0 0 30px rgba(0, 198, 255, 0.2);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    max-width: 90%;
 }
 
 .menu-title {
@@ -41,31 +64,30 @@ canvas {
 
 .button-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 Kolom */
-    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
 }
 
 .menu-btn {
     background: linear-gradient(135deg, #00c6ff, #0072ff);
     border: none;
-    padding: 15px 30px;
+    padding: 15px 20px;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     border-radius: 12px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s;
     width: 100%;
 }
 
 .menu-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 114, 255, 0.4);
+    transform: scale(1.05);
     background: linear-gradient(135deg, #00e1ff, #0072ff);
 }
 
 .instruction {
     color: #888;
     margin-top: 25px;
-    font-size: 14px;
+    font-size: 13px;
 }
